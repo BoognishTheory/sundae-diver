@@ -33,7 +33,7 @@ namespace SundaeDiver
         // cached placeholder sprites
         private Sprite _obstacleSprite;
         private readonly Dictionary<ToppingType, Sprite> _toppingSprites = new Dictionary<ToppingType, Sprite>();
-        private Sprite _longDish, _tallGlass;
+        private Sprite _dishSprite;
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
 
@@ -59,13 +59,18 @@ namespace SundaeDiver
             var items = new List<LevelItem>();
 
             // 1) Lay out the row depths down the playable span.
+            //    Each step is forced to advance by a minimum, and the loop is capped, so a
+            //    mis-set Gap (e.g. 0,0) can NEVER spin forever and freeze the editor.
             var rows = new List<float>();
             float d = IntroClearance;
             float end = level.depth - LandingClearance;
-            while (d < end)
+            const float MinRowStep = 0.5f;
+            int safety = 0;
+            while (d < end && safety++ < 2000)
             {
-                float pacing = PacingCurve(d / level.depth);
-                d += rng.Range(level.gap.x, level.gap.y) * Mathf.Lerp(1.2f, 0.9f, pacing);
+                float pacing = PacingCurve(d / Mathf.Max(1f, level.depth));
+                float step = rng.Range(level.gap.x, level.gap.y) * Mathf.Lerp(1.2f, 0.9f, pacing);
+                d += Mathf.Max(MinRowStep, step);   // always move down, even if Gap is bad
                 if (d >= end) break;
                 rows.Add(d);
             }
@@ -84,7 +89,8 @@ namespace SundaeDiver
                 for (int k = 0; k < T; k++)
                 {
                     int idx = Mathf.Clamp(Mathf.FloorToInt(k * stride + rng.Next() * stride * 0.6f), 0, R - 1);
-                    while (used.Contains(idx)) idx = (idx + 1) % R;
+                    int guard = 0;
+                    while (used.Contains(idx) && guard++ < R) idx = (idx + 1) % R;
                     used.Add(idx);
                     toppingRow[idx] = budget[k];
                 }
@@ -217,12 +223,12 @@ namespace SundaeDiver
 
         private GameObject SpawnDish(LevelData level)
         {
-            GameObject prefab = _prefabs != null ? _prefabs.DishFor(level.dish) : null;
+            GameObject prefab = _prefabs != null ? _prefabs.dishPrefab : null;
             GameObject go = prefab != null
                 ? Object.Instantiate(prefab, new Vector3(0f, -level.depth, 0f), Quaternion.identity, _root)
-                : Placeholder("Dish_" + level.dish,
-                              level.dish == DishType.LongDish ? _longDish : _tallGlass, 0f, -level.depth, 0f, 1);
-            // The dish is purely visual; landing is detected by depth, so no collider/tag.
+                : Placeholder("Dish", _dishSprite, 0f, -level.depth, 0f, 1);
+            // The dish already contains its 3 scoops. It is purely visual; landing is
+            // detected by depth, so it needs no collider/tag.
             _spawned.Add(go);
             return go;
         }
@@ -271,8 +277,7 @@ namespace SundaeDiver
                 int d = Mathf.RoundToInt(Toppings.Radius(t) * 2f * 100f);
                 _toppingSprites[t] = SpriteFactory.Circle(d, Toppings.Tint(t), new Color(0, 0, 0, 0.25f), 3);
             }
-            _longDish = SpriteFactory.RoundRect(560, 150, 40, new Color(0.93f, 0.95f, 0.96f));
-            _tallGlass = SpriteFactory.RoundRect(220, 320, 30, new Color(0.78f, 0.86f, 0.92f, 0.6f));
+            _dishSprite = SpriteFactory.RoundRect(560, 150, 40, new Color(0.93f, 0.95f, 0.96f));
         }
     }
 }

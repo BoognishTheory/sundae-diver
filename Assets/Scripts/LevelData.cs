@@ -14,9 +14,7 @@ namespace SundaeDiver
     public class LevelData : ScriptableObject
     {
         public string levelName = "Banana Split";
-        public float depth = 60f;                    // world units to fall
-        public DishType dish = DishType.LongDish;
-        public OrientationTarget target = OrientationTarget.Horizontal;
+        public float depth = 90f;                    // world units to fall (longer = more time for 10 items)
 
         [Range(0f, 1f)] public float obstacleRate = 0.34f; // chance a *free* row is a hazard
         public Vector2 gap = new Vector2(2.4f, 3.4f);      // min/max vertical gap between rows
@@ -44,25 +42,12 @@ namespace SundaeDiver
         {
             var split = CreateInstance<LevelData>();
             split.levelName = "Banana Split";
-            split.depth = 60f;
-            split.dish = DishType.LongDish;
-            split.target = OrientationTarget.Horizontal;
+            split.depth = 90f;
             split.obstacleRate = 0.34f;
             split.gap = new Vector2(2.4f, 3.4f);
-            split.speedMul = 0.7f;          // intro: slower & sparser -> easy 3 scoops
+            split.speedMul = 0.6f;
             split.seed = 1234;
-
-            var glass = CreateInstance<LevelData>();
-            glass.levelName = "Sundae Glass";
-            glass.depth = 66f;
-            glass.dish = DishType.TallGlass;
-            glass.target = OrientationTarget.Vertical;
-            glass.obstacleRate = 0.48f;
-            glass.gap = new Vector2(2.0f, 2.9f);
-            glass.speedMul = 1.0f;
-            glass.seed = 5678;
-
-            return new List<LevelData> { split, glass };
+            return new List<LevelData> { split };
         }
     }
 }

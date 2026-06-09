@@ -8,8 +8,7 @@ namespace SundaeDiver
     /// <summary>Everything the reveal needs to know about the finished run.</summary>
     public struct SundaeResult
     {
-        public DishType dish;
-        public int scoops;
+        public int scoops;        // the 1-3 RATING (stars), not literal ice-cream scoops
         public int chunks;
         public int maxChunks;
         public int finalScore;
@@ -19,9 +18,8 @@ namespace SundaeDiver
 
     /// <summary>
     /// Ali's idea: when the banana lands, an ice-cream splat covers the camera. While
-    /// hidden, this builds the player's finished sundae from their run — scoops earned
-    /// become stacked ice-cream scoops, collected toppings become garnish, all sitting
-    /// on the level's dish. Then the splat slides off to reveal it.
+    /// hidden, this garnishes the dish (which already contains its 3 scoops) with the
+    /// toppings the player collected. Then the splat slides off to reveal it.
     ///
     /// Fully prefab-driven, with generated placeholders so it runs before any art is in.
     /// Put this on the GameManager object and assign it in the GameManager's "Presenter"
@@ -36,24 +34,18 @@ namespace SundaeDiver
         public float holdTime = 0.5f;
         public float slideOffTime = 0.55f;
 
-        [Header("Sundae pieces")]
-        public GameObject scoopPrefab;                   // one scoop; stacked by scoops earned
-        public float scoopSpacing = 0.55f;               // vertical gap between scoops (world units)
-        public float baseOffset = 0.6f;                  // first scoop offset above the dish origin
+        [Header("Garnish (collected toppings placed on the dish's scoops)")]
         public PrefabLibrary garnishLibrary;             // reuse in-level topping prefabs as garnish (optional)
-        public int maxGarnish = 8;                       // cap so the top doesn't clutter
-
-        [Header("Optional: dedicated sundae art")]
-        [Tooltip("Per-type garnish prefabs made FOR the sundae (overrides reusing the collectible prefabs).")]
-        public PrefabLibrary.ToppingPrefab[] garnishOverride;
-        [Tooltip("Whole pre-built sundae prefabs by scoop rating: index 0=fail/none .. 3=three scoops. If the entry for the earned scoops is set, it is used INSTEAD of composing scoops+garnish.")]
-        public GameObject[] prebuiltByScoops;
+        public PrefabLibrary.ToppingPrefab[] garnishOverride; // dedicated sundae-topping art (overrides reuse)
+        public int maxGarnish = 10;                      // cap so the top doesn't clutter
+        public float garnishHeight = 1.0f;               // height above the dish origin (top of the scoops)
+        public float garnishSpread = 0.45f;              // scatter radius across the top
 
         private Transform _root;                         // parent for built pieces
         private GameObject _splat;
         private Camera _cam;
         private bool _placeholdersBuilt;
-        private Sprite _phSplat, _phScoop;
+        private Sprite _phSplat;
         private readonly Dictionary<ToppingType, Sprite> _phGarnish = new Dictionary<ToppingType, Sprite>();
 
         public void Play(SundaeResult result, GameObject dishView, Action onComplete)
@@ -123,25 +115,8 @@ namespace SundaeDiver
             _root = new GameObject("BuiltSundae").transform;
             _root.position = dishView != null ? dishView.transform.position : Vector3.zero;
 
-            // Mode 1: a whole pre-built sundae prefab keyed by scoop rating.
-            if (prebuiltByScoops != null && result.scoops >= 0 && result.scoops < prebuiltByScoops.Length
-                && prebuiltByScoops[result.scoops] != null)
-            {
-                var whole = Instantiate(prebuiltByScoops[result.scoops], _root);
-                whole.transform.localPosition = Vector3.zero;
-                foreach (var col in whole.GetComponentsInChildren<Collider2D>()) col.enabled = false;
-                return;
-            }
-
-            // Mode 2: compose from scoops + collected toppings.
-            int scoops = Mathf.Max(1, result.scoops);
-            float topY = baseOffset;
-            for (int i = 0; i < scoops; i++)
-            {
-                topY = baseOffset + i * scoopSpacing;
-                SpawnPiece(scoopPrefab, _phScoop, new Vector3(0f, topY, 0f), 50 + i);
-            }
-
+            // The dish already holds its 3 scoops; we only add the collected toppings as
+            // garnish, scattered across the top.
             if (result.toppings == null) return;
             int total = 0;
             foreach (var kv in result.toppings) total += kv.Value;
@@ -154,9 +129,9 @@ namespace SundaeDiver
                 for (int j = 0; j < show && placed < maxGarnish; j++, placed++)
                 {
                     float ang = placed * 2.39996f;        // golden-angle scatter
-                    float rad = 0.18f + 0.10f * (placed % 3);
+                    float rad = garnishSpread * (0.4f + 0.6f * ((placed % 3) / 2f));
                     var pos = new Vector3(Mathf.Cos(ang) * rad,
-                                          topY + scoopSpacing * 0.4f + Mathf.Sin(ang) * rad * 0.5f,
+                                          garnishHeight + Mathf.Sin(ang) * rad * 0.4f,
                                           -0.01f);
                     SpawnPiece(GarnishPrefabFor(kv.Key), _phGarnish[kv.Key], pos, 60 + placed);
                 }
@@ -199,7 +174,6 @@ namespace SundaeDiver
             if (_placeholdersBuilt) return;
             _placeholdersBuilt = true;
             _phSplat = SpriteFactory.Circle(256, new Color(1f, 0.93f, 0.86f), new Color(0.95f, 0.8f, 0.85f), 10);
-            _phScoop = SpriteFactory.Circle(120, new Color(1f, 0.86f, 0.7f), new Color(0.9f, 0.72f, 0.55f), 6);
             foreach (var t in Toppings.All)
                 _phGarnish[t] = SpriteFactory.Circle(40, Toppings.Tint(t), new Color(0, 0, 0, 0.25f), 3);
         }

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b469718ea6975794b99bc6d06cfd3962, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SundaeDiver.GameConfig
+  fallStart: 6
+  fallAccel: 1.2
+  fallMax: 12
+  moveSpeed: 55
+  moveFriction: 8
+  keyMoveAccel: 38
+  playHalfWidth: 2.1
+  rotateRate: 150
+  knockSpinDamp: 6
+  knockSpinKick: 220
+  knockMoveKick: 2.2
+  maxChunks: 5
+  bananaRadius: 0.45
+  minScale: 0.34
+  invulnTime: 0.8
+  bananaFlatOffsetDeg: 0
+  hitPenalty: 120
+  intactMax: 600
+  landingMax: 500
+  scoopThresholds:
+  - 0.45
+  - 0.68
+  - 0.88
+  bananaScreenYFactor: 0.34
+  orthoSize: 5

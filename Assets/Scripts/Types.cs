@@ -6,8 +6,7 @@ namespace SundaeDiver
     public enum GameState { Menu, Ready, Diving, Landing, Result }
 
     // ---- Dish / landing ----
-    public enum DishType { LongDish, TallGlass }
-    public enum OrientationTarget { Horizontal, Vertical }
+    // Single horizontal dish: the banana lands flat. (Tall glass / vertical removed.)
 
     // ---- Pickups & hazards ----
     public enum ToppingType { Peanut, Whip, Cherry, Fudge }

@@ -13,8 +13,12 @@ namespace SundaeDiver
     {
         [Header("Fall (scaled per level by LevelData.speedMul)")]
         public float fallStart = 6f;      // initial fall speed (units/sec)
-        public float fallAccel = 1.2f;    // gravity-ish acceleration
+        public float fallAccel = 1.2f;    // gravity-ish acceleration during the dive
         public float fallMax   = 12f;     // terminal velocity
+
+        [Header("Launch (diving-board spring)")]
+        public float launchSpringSpeed = 9f;  // upward pop speed at release (units/sec)
+        public float launchGravity     = 30f; // stronger gravity during the pop (snappy arc)
 
         [Header("Horizontal movement")]
         public float moveSpeed     = 55f; // drag -> horizontal velocity sensitivity

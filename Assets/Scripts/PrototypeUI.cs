@@ -11,6 +11,8 @@ namespace SundaeDiver
     public class PrototypeUI : MonoBehaviour
     {
         public GameManager gm;
+        [Tooltip("Show live State / Distance / FallSpeed / Banana Y / Item count for debugging.")]
+        public bool showDebug = true;
 
         private GUIStyle _title, _label, _small, _btn, _scoop;
 
@@ -41,6 +43,26 @@ namespace SundaeDiver
                 case GameState.Landing: DrawHud(s); break;
                 case GameState.Result:  DrawHud(s); DrawResults(s); break;
             }
+
+            if (showDebug) DrawDebug(s);
+        }
+
+        private void DrawDebug(float s)
+        {
+            var style = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = (int)(16 * s),
+                alignment = TextAnchor.LowerLeft,
+            };
+            string txt =
+                $"State: {gm.State}\n" +
+                $"Distance: {gm.Distance:0.0} / {(gm.Current != null ? gm.Current.depth : 0f):0.0}\n" +
+                $"FallSpeed: {gm.FallSpeed:0.0}   BananaY: {gm.BananaY:0.0}\n" +
+                $"Items spawned: {gm.ItemCount}";
+            GUI.color = new Color(0f, 0f, 0f, 0.35f);
+            GUI.DrawTexture(new Rect(8 * s, Screen.height - 110 * s, 360 * s, 102 * s), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            GUI.Label(new Rect(16 * s, Screen.height - 108 * s, 360 * s, 96 * s), txt, style);
         }
 
         private void DrawHud(float s)
@@ -84,13 +106,18 @@ namespace SundaeDiver
             GUI.Label(new Rect(0, Screen.height * 0.22f, Screen.width, 40 * s),
                       "Dive, dodge, collect, and stick the landing.", _small);
 
-            float bw = Screen.width * 0.36f, bh = Screen.height * 0.16f;
-            float y = Screen.height * 0.4f;
-            var rA = new Rect(Screen.width * 0.5f - bw - 12 * s, y, bw, bh);
-            var rB = new Rect(Screen.width * 0.5f + 12 * s, y, bw, bh);
-
-            if (GUI.Button(rA, "Banana Split\n(land flat)", _btn)) gm.SelectLevel(0);
-            if (GUI.Button(rB, "Sundae Glass\n(land upright)", _btn)) gm.SelectLevel(1);
+            var levels = gm.levels;
+            int n = levels != null ? levels.Count : 0;
+            float bw = Screen.width * 0.5f, bh = Screen.height * 0.11f, gap = 12 * s;
+            float y0 = Screen.height * 0.38f;
+            for (int i = 0; i < n; i++)
+            {
+                var r = new Rect(Screen.width * 0.5f - bw * 0.5f, y0 + i * (bh + gap), bw, bh);
+                string name = levels[i] != null ? levels[i].levelName : ("Level " + (i + 1));
+                if (GUI.Button(r, name, _btn)) gm.SelectLevel(i);
+            }
+            if (n == 0)
+                GUI.Label(new Rect(0, y0, Screen.width, bh), "No levels assigned on the GameManager.", _small);
         }
 
         private void DrawResults(float s)

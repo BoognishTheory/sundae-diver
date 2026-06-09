@@ -24,9 +24,8 @@ namespace SundaeDiver
         [Header("Toppings (map each type to a prefab)")]
         public ToppingPrefab[] toppingPrefabs;
 
-        [Header("Dishes / containers")]
-        public GameObject longDishPrefab;
-        public GameObject tallGlassPrefab;
+        [Header("Dish / container (always shown with its 3 scoops)")]
+        public GameObject dishPrefab;
 
         public GameObject ObstacleFor(DeterministicRng rng)
         {
@@ -41,8 +40,5 @@ namespace SundaeDiver
                     if (tp.type == t) return tp.prefab;
             return null;
         }
-
-        public GameObject DishFor(DishType d)
-            => d == DishType.LongDish ? longDishPrefab : tallGlassPrefab;
     }
 }

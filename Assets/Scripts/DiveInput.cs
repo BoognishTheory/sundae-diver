@@ -12,7 +12,8 @@ namespace SundaeDiver
         // Outputs read by the game each frame
         public float MoveDeltaPixels;   // horizontal drag this frame (screen px)
         public int   KeyMoveDir;        // -1/0/+1 from arrow keys (editor)
-        public bool  LaunchRequested;   // swipe-down (or Space/Down) on the board
+        public bool  LaunchRequested;   // fires on RELEASE of a downward swipe (or Space/Down)
+        public float LaunchCharge;      // 0..1, how far the player has pulled down in Ready
 
         // Set by PrototypeUI each frame (reset on GUI Layout)
         public bool uiCW, uiCCW;
@@ -20,10 +21,12 @@ namespace SundaeDiver
         public bool HoldCW  => uiCW  || Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.X);
         public bool HoldCCW => uiCCW || Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.Z);
 
-        private const float LaunchSwipePx = 60f;
+        private const float LaunchSwipePx = 60f;     // min downward drag to count as a launch
+        private const float ChargeDistancePx = 220f; // drag distance for a full "loaded board"
         private bool _down;
         private Vector2 _downPos, _lastPos;
         private bool _startedInControlZone;
+        private float _peakDown;                      // peak downward drag since press
 
         // Bottom-right zone (screen px, origin bottom-left) reserved for rotate buttons.
         public static bool InControlZone(Vector2 p)
@@ -33,13 +36,14 @@ namespace SundaeDiver
         {
             MoveDeltaPixels = 0f;
             LaunchRequested = false;
+            LaunchCharge = 0f;
 
             // keyboard horizontal (editor testing)
             KeyMoveDir = 0;
             if (Input.GetKey(KeyCode.LeftArrow))  KeyMoveDir -= 1;
             if (Input.GetKey(KeyCode.RightArrow)) KeyMoveDir += 1;
 
-            // keyboard launch
+            // keyboard launch (immediate)
             if (state == GameState.Ready &&
                 (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.DownArrow)))
                 LaunchRequested = true;
@@ -59,14 +63,19 @@ namespace SundaeDiver
                 _down = true;
                 _downPos = pos;
                 _lastPos = pos;
+                _peakDown = 0f;
                 _startedInControlZone = InControlZone(pos);
             }
+
+            bool released = _down && !pointerDown;
 
             if (_down && pointerDown)
             {
                 if (state == GameState.Ready && !_startedInControlZone)
                 {
-                    if (_downPos.y - pos.y > LaunchSwipePx) LaunchRequested = true; // swipe down
+                    // pulling down "loads the board" — track the peak pull for the spring
+                    _peakDown = Mathf.Max(_peakDown, _downPos.y - pos.y);
+                    LaunchCharge = Mathf.Clamp01(_peakDown / ChargeDistancePx);
                 }
                 else if (state == GameState.Diving && !_startedInControlZone)
                 {
@@ -75,7 +84,13 @@ namespace SundaeDiver
                 _lastPos = pos;
             }
 
-            if (!pointerDown) _down = false;
+            if (released)
+            {
+                // launch fires on RELEASE (the board springs back)
+                if (state == GameState.Ready && !_startedInControlZone && _peakDown > LaunchSwipePx)
+                    LaunchRequested = true;
+                _down = false;
+            }
         }
     }
 }

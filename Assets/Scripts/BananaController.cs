@@ -38,8 +38,16 @@ namespace SundaeDiver
         private GameObject[] _stateInstances;   // instantiated once, toggled by health
         private int _shownState = -1;
 
+        private static bool _buildingStates;   // recursion guard for health-state instancing
+
         private void Awake()
         {
+            // If THIS banana is itself being instantiated as a health-state visual (because a
+            // state prefab accidentally carries a BananaController), do nothing: no physics,
+            // no further state-instancing. Without this, instancing recurses forever and Unity
+            // throws StackOverflowException in Internal_CloneSingleWithParent.
+            if (_buildingStates) return;
+
             // The banana must have a Rigidbody2D for Unity to fire trigger events, but
             // we drive movement ourselves, so force KINEMATIC (no gravity, no physics
             // fighting the code). This overrides a Dynamic setting on purpose.
@@ -57,9 +65,10 @@ namespace SundaeDiver
             }
 
             // Instantiate the health-state visuals once as children (visual only — the
-            // gameplay collider stays on this root). They are toggled by chunk count.
+            // gameplay collider/Rigidbody stay on this root). They are toggled by chunk count.
             if (healthStatePrefabs != null && healthStatePrefabs.Length > 0)
             {
+                _buildingStates = true;
                 _stateInstances = new GameObject[healthStatePrefabs.Length];
                 for (int i = 0; i < healthStatePrefabs.Length; i++)
                 {
@@ -67,10 +76,14 @@ namespace SundaeDiver
                     var inst = Instantiate(healthStatePrefabs[i], transform);
                     inst.transform.localPosition = Vector3.zero;
                     inst.transform.localRotation = Quaternion.identity;
-                    foreach (var col in inst.GetComponentsInChildren<Collider2D>()) col.enabled = false;
+                    // strip anything that could fight or duplicate the parent banana
+                    var ctrl = inst.GetComponent<BananaController>(); if (ctrl != null) Destroy(ctrl);
+                    var irb = inst.GetComponent<Rigidbody2D>();       if (irb != null)  Destroy(irb);
+                    foreach (var col in inst.GetComponentsInChildren<Collider2D>()) Destroy(col);
                     inst.SetActive(false);
                     _stateInstances[i] = inst;
                 }
+                _buildingStates = false;
             }
         }
 
@@ -88,14 +101,21 @@ namespace SundaeDiver
             UpdateHealthVisual();
         }
 
-        // Show the state prefab matching the current chunk count (proportional mapping,
-        // so any number of state prefabs works: e.g. 5 states across 5 chunks, or 6 incl. empty).
+        // Show the state prefab matching the current chunk count. Order your prefabs
+        // MOST DAMAGED -> FULL, so the last element is the healthy banana.
+        //  - if you supply (maxChunks + 1) states: one per level incl. 0  -> index = chunks
+        //  - if you supply (maxChunks) states:      one per live level     -> index = chunks - 1
+        //  - any other count: spread proportionally, full health = last
         private void UpdateHealthVisual()
         {
             if (_stateInstances == null || _stateInstances.Length == 0) return;
             int len = _stateInstances.Length;
-            float frac = config.maxChunks > 0 ? (float)Chunks / config.maxChunks : 0f;
-            int idx = Mathf.Clamp(Mathf.RoundToInt(frac * (len - 1)), 0, len - 1);
+            int idx;
+            if (len == config.maxChunks + 1)      idx = Chunks;
+            else if (len == config.maxChunks)     idx = Chunks - 1;
+            else                                  idx = Mathf.RoundToInt(
+                                                      (config.maxChunks > 0 ? (float)Chunks / config.maxChunks : 0f) * (len - 1));
+            idx = Mathf.Clamp(idx, 0, len - 1);
             if (idx == _shownState) return;
             _shownState = idx;
             for (int i = 0; i < len; i++)
@@ -149,23 +169,14 @@ namespace SundaeDiver
             return Chunks <= 0;
         }
 
-        /// <summary>Orientation accuracy 0..1 against the level's target.</summary>
-        public float LandingAccuracy(OrientationTarget target)
+        /// <summary>How flat the banana is on landing, 0..1 (1 = perfectly horizontal).</summary>
+        public float LandingAccuracy()
         {
             // Fold to 0..180 (the banana sprite has 180° symmetry). bananaFlatOffsetDeg
             // lets real art whose "flat" pose isn't at 0° be compensated without re-rotating.
             float a = Mathf.Repeat(AngleDeg - config.bananaFlatOffsetDeg, 180f);
-            float acc;
-            if (target == OrientationTarget.Horizontal)
-            {
-                float d = Mathf.Min(a, 180f - a);   // distance to flat (0 or 180)
-                acc = 1f - d / 90f;
-            }
-            else
-            {
-                acc = 1f - Mathf.Abs(a - 90f) / 90f; // distance to upright (90)
-            }
-            return Mathf.Max(0f, acc);
+            float d = Mathf.Min(a, 180f - a);   // distance to flat (0 or 180)
+            return Mathf.Max(0f, 1f - d / 90f);
         }
     }
 }

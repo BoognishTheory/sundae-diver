@@ -11,6 +11,8 @@ namespace SundaeDiver
     {
         public Transform target;
         public GameConfig config;
+        [Tooltip("Turn OFF to keep the camera still and watch the banana physically fall (debug).")]
+        public bool follow = true;
 
         private Camera _cam;
 
@@ -26,7 +28,7 @@ namespace SundaeDiver
 
         private void LateUpdate()
         {
-            if (target == null || config == null) return;
+            if (!follow || target == null || config == null) return;
             // Place banana at bananaScreenYFactor from the top:
             //   bananaY = camY + orthoSize * (1 - 2f)  ->  camY = bananaY - orthoSize*(1-2f)
             float offset = config.orthoSize * (1f - 2f * config.bananaScreenYFactor);

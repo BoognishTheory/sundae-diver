@@ -28,6 +28,12 @@ namespace SundaeDiver
         public int CurrentIndex { get; private set; }
         public float Progress => Current != null ? Mathf.Clamp01(_distance / Current.depth) : 0f;
 
+        // Debug readouts (shown by PrototypeUI when its Show Debug is on)
+        public float Distance => _distance;
+        public float FallSpeed => _fallSpeed;
+        public int ItemCount => _items != null ? _items.Count : 0;
+        public float BananaY => banana != null ? banana.transform.position.y : 0f;
+
         private LevelGenerator _gen;
         private List<LevelItem> _items;
         private float _distance, _fallSpeed, _stateTimer;
@@ -64,13 +70,31 @@ namespace SundaeDiver
         public void SelectLevel(int index) { CurrentIndex = index; StartLevel(); }
         public void Retry() { StartLevel(); }
         public void ToMenu() { State = GameState.Menu; _gen.Clear(); }
-        public void Launch() { if (State == GameState.Ready) State = GameState.Diving; }
+        public void Launch()
+        {
+            if (State != GameState.Ready) return;
+            State = GameState.Diving;
+            // Diving-board spring: start with an UPWARD velocity so the banana pops off
+            // the board, reaches an apex, then arcs down into the dive.
+            _fallSpeed = -config.launchSpringSpeed * Mathf.Max(0.1f, Current.speedMul);
+        }
+
+        // Anticipation: while the player pulls down, dip + squash the banana so the board
+        // looks loaded. Released, Launch() springs it upward.
+        private void ApplyReadyCrouch(float charge)
+        {
+            var p = banana.transform.position;
+            p.x = 0f;
+            p.y = -0.15f * charge;
+            banana.transform.position = p;
+            banana.transform.localScale = new Vector3(1f + 0.08f * charge, 1f - 0.12f * charge, 1f);
+        }
 
         private void StartLevel()
         {
             Current = levels[Mathf.Clamp(CurrentIndex, 0, levels.Count - 1)];
             _distance = 0f;
-            _fallSpeed = config.fallStart * Current.speedMul;
+            _fallSpeed = 0f;            // stationary on the board until Launch springs it
             _items = _gen.Generate(Current, CurrentIndex);
             Score.BeginLevel(_items);
             banana.ResetState();
@@ -93,6 +117,7 @@ namespace SundaeDiver
             switch (State)
             {
                 case GameState.Ready:
+                    ApplyReadyCrouch(Input.LaunchCharge);
                     if (Input.LaunchRequested) Launch();
                     break;
                 case GameState.Diving:
@@ -108,8 +133,11 @@ namespace SundaeDiver
 
         private void TickDiving(float dt)
         {
-            float spd = Current.speedMul;
-            _fallSpeed = Mathf.Min(config.fallMax * spd, _fallSpeed + config.fallAccel * spd * dt);
+            float spd = Mathf.Max(0.1f, Current.speedMul);  // guard against an unset (0) speedMul
+            // While the banana is above the board (distance < 0) it's in the spring arc —
+            // use the snappier launch gravity. Once it crosses back down, normal dive fall.
+            float accel = (_distance < 0f ? config.launchGravity : config.fallAccel) * spd;
+            _fallSpeed = Mathf.Min(config.fallMax * spd, _fallSpeed + accel * dt);
             _distance += _fallSpeed * dt;
 
             banana.Tick(dt, Input);
@@ -147,7 +175,7 @@ namespace SundaeDiver
         private void DoLanding()
         {
             if (banana.Chunks <= 0) { DoFail(); return; }
-            float acc = banana.LandingAccuracy(Current.target);
+            float acc = banana.LandingAccuracy();
             Score.Finalize(banana.Chunks, acc);
             PresentResult(BuildResult());
         }
@@ -162,7 +190,6 @@ namespace SundaeDiver
         {
             return new SundaeResult
             {
-                dish = Current.dish,
                 scoops = Score.Scoops,
                 chunks = banana.Chunks,
                 maxChunks = config.maxChunks,
