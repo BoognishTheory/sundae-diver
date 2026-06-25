@@ -17,14 +17,14 @@ namespace SundaeDiver
         public float fallMax   = 12f;     // terminal velocity
 
         [Header("Launch (diving-board spring)")]
-        public float launchSpringSpeed = 9f;  // upward pop speed at release (units/sec)
-        public float launchGravity     = 30f; // stronger gravity during the pop (snappy arc)
+        public float launchSpringSpeed = 20f; // upward pop speed at release (units/sec)
+        public float launchGravity     = 14f; // stronger gravity during the pop (snappy arc)
 
         [Header("Horizontal movement")]
         public float moveSpeed     = 55f; // drag -> horizontal velocity sensitivity
         public float moveFriction  = 8f;  // exponential damping (higher = snappier)
         public float keyMoveAccel  = 38f; // keyboard accel (editor testing)
-        public float playHalfWidth = 2.1f;// clamp banana to +/- this (world units)
+        public float playHalfWidth = 7f;// clamp banana to +/- this (world units)
 
         [Header("Rotation (PLAYTEST 01: static, no momentum)")]
         public float rotateRate    = 150f;// player rotation while a scoop button is held (deg/sec)
@@ -48,7 +48,7 @@ namespace SundaeDiver
 
         [Header("Camera")]
         [Range(0f, 0.9f)] public float bananaScreenYFactor = 0.34f; // banana sits this far from top
-        public float orthoSize = 5f;      // half view height (world units)
+        public float orthoSize = 14f;      // half view height (world units)
 
         public static GameConfig CreateDefault() => CreateInstance<GameConfig>();
     }

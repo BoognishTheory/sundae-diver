@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 19c7e0a080c19504dbb6e919f5567763
+guid: 49ea98ef38bf7044f97f52f5af1a783b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5135349921990953652
-    second: Obstacle_6_0
+      213: -2695263523071413454
+    second: plank_segment_4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Obstacle_6_0
+      name: plank_segment_4_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 254
-        height: 343
+        y: 80
+        width: 175
+        height: 180
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c45366644729bb8b0800000000000000
-      internalID: -5135349921990953652
+      spriteID: 233b24b1b10889ad0800000000000000
+      internalID: -2695263523071413454
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Obstacle_6_0: -5135349921990953652
+      plank_segment_4_0: -2695263523071413454
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

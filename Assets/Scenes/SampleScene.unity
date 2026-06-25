@@ -224,6 +224,7 @@ MonoBehaviour:
   itemsRoot: {fileID: 417917984}
   prefabs: {fileID: 297080822}
   presenter: {fileID: 297080821}
+  divingBoard: {fileID: 1391224127}
 --- !u!114 &297080824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -331,7 +332,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -377,6 +378,69 @@ MonoBehaviour:
   target: {fileID: 1816385351}
   config: {fileID: 11400000, guid: 33e61af61cf452e48919ea2a0aae8062, type: 2}
   follow: 1
+--- !u!1 &1391224126
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1391224128}
+  - component: {fileID: 1391224127}
+  m_Layer: 0
+  m_Name: DivingBoard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1391224127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1391224126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d2f5187bf173564080a78988af61769, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SundaeDiver.DivingBoard
+  gm: {fileID: 297080823}
+  segmentSprites:
+  - {fileID: 5808100986869282292, guid: d380a9c9ab3d2fa4681507998c11b6b5, type: 3}
+  - {fileID: -116200778903418510, guid: 1ff904d620c1c834b89a2b0b88ddef91, type: 3}
+  - {fileID: -3106125801274678243, guid: 3d44e06e12d12084891d27a15622c405, type: 3}
+  - {fileID: -4952693885106714815, guid: d2e3d8f7cec21ac4cb4bfd512eabaf6a, type: 3}
+  - {fileID: -2695263523071413454, guid: 49ea98ef38bf7044f97f52f5af1a783b, type: 3}
+  - {fileID: -3020809701384464639, guid: f8176828816e5154791f310194a6598e, type: 3}
+  - {fileID: 6755819873593225130, guid: 9af95b672f5ad0e43a33aad1cec427b7, type: 3}
+  - {fileID: 8982846911501637710, guid: 1bb777949f1c00846af9c7293b8728e4, type: 3}
+  boardOffsetX: -4
+  boardOffsetY: -1.1
+  boardDepth: 0.1
+  bananaSitOffsetY: 1.08
+  maxChargeBendDeg: 22
+  flexIntensity: 2.5
+  springiness: 1
+  launchDuration: 0.5
+  slideDistance: 8
+--- !u!4 &1391224128
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1391224126}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.2, y: -2.2, z: 0}
+  m_LocalScale: {x: 0.37, y: 0.23, z: 0.23}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1816385347
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,7 +479,7 @@ MonoBehaviour:
   - {fileID: 7883094622855668462, guid: bf4221002f3c3e649b5714626c94704f, type: 3}
   - {fileID: 4527884172379008859, guid: f0e8f54baa52d534ab9be7e231e24c69, type: 3}
   - {fileID: 2539518161656121159, guid: 4e8177f92811d4b43aaf5827039f5423, type: 3}
-  shrinkWithChunks: 0
+  shrinkWithChunks: 1
 --- !u!50 &1816385349
 Rigidbody2D:
   serializedVersion: 5
@@ -517,6 +581,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2018723015
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2018723017}
+  - component: {fileID: 2018723016}
+  m_Layer: 0
+  m_Name: BGScroller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2018723016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018723015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c99ccb6c14a77444e8a53e5ad5229162, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SundaeDiver.BackgroundScroller
+  cam: {fileID: 519420031}
+  bgSprite: {fileID: 2925481982960976719, guid: 093af57e1e8d2d0468c3c59c40a0ddd8, type: 3}
+  panelHeight: 16
+  panelCount: 3
+  sortingOrder: -10
+--- !u!4 &2018723017
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018723015}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -8.24046, y: 4.0492, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -525,3 +638,5 @@ SceneRoots:
   - {fileID: 417917984}
   - {fileID: 297080820}
   - {fileID: 1816385351}
+  - {fileID: 1391224128}
+  - {fileID: 2018723017}

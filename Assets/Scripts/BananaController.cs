@@ -19,7 +19,7 @@ namespace SundaeDiver
         [Tooltip("Banana states ordered MOST DAMAGED -> FULL. The matching one is shown for the current chunk count. Leave empty to just use one sprite.")]
         public GameObject[] healthStatePrefabs;
         [Tooltip("Also shrink the banana as chunks are lost. Turn OFF if your state art already conveys damage.")]
-        public bool shrinkWithChunks = true;
+        public bool shrinkWithChunks = false;
 
         public int Chunks { get; private set; }
         public float Scale { get; private set; } = 1f;
@@ -35,7 +35,10 @@ namespace SundaeDiver
         private float _knockSpin;   // deg/sec, decays
         private float _invuln;
         private Rigidbody2D _rb;
-        private GameObject[] _stateInstances;   // instantiated once, toggled by health
+        private PolygonCollider2D _poly;             // root collider — swapped per health state
+        private Vector2[][][] _statePolyPaths;       // [stateIndex][pathIndex][point]
+        private float[] _stateNormScale;             // per-state normalizing scale so all states share the full-health bounding box
+        private GameObject[] _stateInstances;        // instantiated once, toggled by health
         private int _shownState = -1;
 
         private static bool _buildingStates;   // recursion guard for health-state instancing
@@ -57,12 +60,14 @@ namespace SundaeDiver
             _rb.gravityScale = 0f;
             _rb.constraints = RigidbodyConstraints2D.None;
 
-            // Ensure there is *some* collider so detection works even before art is added.
-            if (GetComponent<Collider2D>() == null)
-            {
-                var c = gameObject.AddComponent<CircleCollider2D>();
-                c.radius = 0.45f;
-            }
+            // Remove any CircleCollider2D that was on this root — we'll drive a PolygonCollider2D
+            // whose shape matches the active health-state prefab instead.
+            var circle = GetComponent<CircleCollider2D>();
+            if (circle != null) Destroy(circle);
+
+            _poly = GetComponent<PolygonCollider2D>();
+            if (_poly == null) _poly = gameObject.AddComponent<PolygonCollider2D>();
+            _poly.isTrigger = true;
 
             // Instantiate the health-state visuals once as children (visual only — the
             // gameplay collider/Rigidbody stay on this root). They are toggled by chunk count.
@@ -70,15 +75,53 @@ namespace SundaeDiver
             {
                 _buildingStates = true;
                 _stateInstances = new GameObject[healthStatePrefabs.Length];
+                _statePolyPaths = new Vector2[healthStatePrefabs.Length][][];
+                _stateNormScale = new float[healthStatePrefabs.Length];
+
+                // Collect sprite sizes first so we can normalise against the full-health
+                // state (last element, since array is ordered MOST DAMAGED -> FULL).
+                var spriteSizes = new float[healthStatePrefabs.Length];
+                for (int i = 0; i < healthStatePrefabs.Length; i++)
+                {
+                    if (healthStatePrefabs[i] == null) continue;
+                    var sr = healthStatePrefabs[i].GetComponent<SpriteRenderer>();
+                    spriteSizes[i] = sr != null && sr.sprite != null ? sr.sprite.bounds.size.magnitude : 1f;
+                }
+                float refSize = spriteSizes[healthStatePrefabs.Length - 1];
+                if (refSize <= 0f) refSize = 1f;
+
+                for (int i = 0; i < healthStatePrefabs.Length; i++)
+                {
+                    _stateNormScale[i] = spriteSizes[i] > 0f ? refSize / spriteSizes[i] : 1f;
+                }
+
                 for (int i = 0; i < healthStatePrefabs.Length; i++)
                 {
                     if (healthStatePrefabs[i] == null) continue;
                     var inst = Instantiate(healthStatePrefabs[i], transform);
                     inst.transform.localPosition = Vector3.zero;
                     inst.transform.localRotation = Quaternion.identity;
-                    // strip anything that could fight or duplicate the parent banana
+                    inst.transform.localScale = Vector3.one * _stateNormScale[i];
+
+                    // Capture polygon paths BEFORE stripping colliders so we can
+                    // apply the right shape to the root collider on each state change.
+                    var srcPoly = inst.GetComponent<PolygonCollider2D>();
+                    if (srcPoly != null)
+                    {
+                        _statePolyPaths[i] = new Vector2[srcPoly.pathCount][];
+                        for (int p = 0; p < srcPoly.pathCount; p++)
+                        {
+                            var path = srcPoly.GetPath(p);
+                            float ns = _stateNormScale[i];
+                            for (int v = 0; v < path.Length; v++)
+                                path[v] *= ns;
+                            _statePolyPaths[i][p] = path;
+                        }
+                    }
+
+                    // Strip anything that could fight or duplicate the parent banana.
                     var ctrl = inst.GetComponent<BananaController>(); if (ctrl != null) Destroy(ctrl);
-                    var irb = inst.GetComponent<Rigidbody2D>();       if (irb != null)  Destroy(irb);
+                    var irb  = inst.GetComponent<Rigidbody2D>();      if (irb  != null) Destroy(irb);
                     foreach (var col in inst.GetComponentsInChildren<Collider2D>()) Destroy(col);
                     inst.SetActive(false);
                     _stateInstances[i] = inst;
@@ -120,6 +163,20 @@ namespace SundaeDiver
             _shownState = idx;
             for (int i = 0; i < len; i++)
                 if (_stateInstances[i] != null) _stateInstances[i].SetActive(i == idx);
+
+            // Snap scale immediately on state change so the prefab swap and size change
+            // happen on the same frame — prevents the grow-then-lerp-shrink artifact.
+            if (shrinkWithChunks)
+                Scale = Mathf.Max(config.minScale, config.maxChunks > 0 ? (float)Chunks / config.maxChunks : 1f);
+
+            // Swap the root polygon collider to the shape for this health state.
+            if (_poly != null && _statePolyPaths != null && _statePolyPaths[idx] != null)
+            {
+                var paths = _statePolyPaths[idx];
+                _poly.pathCount = paths.Length;
+                for (int p = 0; p < paths.Length; p++)
+                    _poly.SetPath(p, paths[p]);
+            }
         }
 
         /// <summary>Advance one frame. GameManager calls this, then sets Y.</summary>

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d22652dba03b3db4bbca96abb6cdff02
+guid: 03a76fab8fc010045a7648cb7d31e194
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2637037614932386369
-    second: Ice_Cream_Bowl_0
+      213: -4986436172511114377
+    second: tile-sage-green_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ice_Cream_Bowl_0
+      name: tile-sage-green_0
       rect:
         serializedVersion: 2
-        x: 15
-        y: 5
-        width: 761
-        height: 260
+        x: 0
+        y: 0
+        width: 1080
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 14263693db3a89420800000000000000
-      internalID: 2637037614932386369
+      spriteID: 77b015a68be9ccab0800000000000000
+      internalID: -4986436172511114377
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ice_Cream_Bowl_0: 2637037614932386369
+      tile-sage-green_0: -4986436172511114377
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

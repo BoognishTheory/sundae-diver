@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d4a93bea5f4cf8440b78135adfd7a782
+guid: feceae9204bb28849bdf0562f39550bf
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3656028243228580229
-    second: Hot_Fudge_0
+      213: -6031707569235370860
+    second: kitchen-tile-bg_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,18 +40,18 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 1
-    wrapV: 1
-    wrapW: 1
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 225
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Hot_Fudge_0
+      name: kitchen-tile-bg_0
       rect:
         serializedVersion: 2
-        x: 13
-        y: 1
-        width: 247
-        height: 212
+        x: 0
+        y: 0
+        width: 1080
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5895f661152dcb230800000000000000
-      internalID: 3656028243228580229
+      spriteID: 49cd0b25ce11b4ca0800000000000000
+      internalID: -6031707569235370860
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Hot_Fudge_0: 3656028243228580229
+      kitchen-tile-bg_0: -6031707569235370860
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

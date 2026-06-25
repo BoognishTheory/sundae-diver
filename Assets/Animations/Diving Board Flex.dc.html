@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  @keyframes rippleDrift { 0%{transform:translateX(0)} 100%{transform:translateX(-40px)} }
+</style>
+</helmet>
+<div style="position:relative; width:100%; min-height:560px; height:100vh; background:linear-gradient(#f3ede3 0%, #efe7da 58%, #e7ddcd 58%); overflow:hidden; font-family:'Helvetica Neue',Arial,sans-serif; user-select:none;">
+
+  <!-- water -->
+  <div ref="{{ waterRef }}" style="position:absolute; left:0; right:0; bottom:0; height:30%; display:{{ waterDisplay }}; background:#bcd6df; overflow:hidden;">
+    <div style="position:absolute; inset:0; opacity:0.5; background:repeating-linear-gradient(90deg, rgba(255,255,255,0.35) 0 2px, transparent 2px 46px); animation:rippleDrift 3.5s linear infinite;"></div>
+    <div style="position:absolute; top:0; left:0; right:0; height:2px; background:rgba(255,255,255,0.6);"></div>
+  </div>
+
+  <!-- scene -->
+  <div style="position:absolute; left:50%; top:48%; transform:translate(-50%,-50%); width:840px; height:380px;">
+
+    <!-- platform -->
+    <div style="position:absolute; left:-60px; bottom:-40px; width:340px; height:236px; background:linear-gradient(#cfc6b8,#b0a592); border-radius:0 4px 0 0; box-shadow:inset 0 3px 0 rgba(255,255,255,0.4), 0 10px 22px rgba(0,0,0,0.15); z-index:2;"></div>
+    <div style="position:absolute; left:0; bottom:-200px; width:120px; height:200px; background:#a99d8a; z-index:1;"></div>
+
+    <!-- fulcrum (under the seam) -->
+    <div style="position:absolute; left:261px; bottom:150px; width:46px; height:46px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #f2f2f4, #8d9196 70%, #5d6267); box-shadow:0 6px 10px rgba(0,0,0,0.25); z-index:3;"></div>
+
+    <!-- board: 8-segment kinematic chain (each segment adds a little bend) -->
+    <div ref="{{ boardRef }}" style="position:absolute; left:48px; bottom:158px; height:176px; z-index:4; cursor:pointer;"><div data-seg="0" style="position:absolute; left:0px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><div data-seg="1" style="position:absolute; left:78.6px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><div data-seg="2" style="position:absolute; left:78.6px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><div data-seg="3" style="position:absolute; left:78.6px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><div data-seg="4" style="position:absolute; left:78.6px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><div data-seg="5" style="position:absolute; left:78.6px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><div data-seg="6" style="position:absolute; left:78.6px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><div data-seg="7" style="position:absolute; left:78.6px; top:0; height:176px; transform-origin:0 88px; will-change:transform;"><img src="plank-seg-7.png" alt="seg 7" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto;" /></div><img src="plank-seg-6.png" alt="seg 6" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto; -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);" /></div><img src="plank-seg-5.png" alt="seg 5" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto; -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);" /></div><img src="plank-seg-4.png" alt="seg 4" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto; -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);" /></div><img src="plank-seg-3.png" alt="seg 3" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto; -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);" /></div><img src="plank-seg-2.png" alt="seg 2" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto; -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);" /></div><img src="plank-seg-1.png" alt="seg 1" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto; -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);" /></div><img src="plank-seg-0.png" alt="seg 0" style="display:block; position:absolute; left:0; top:0; height:176px; width:auto; -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 10px),transparent);" /></div></div>
+  </div>
+
+  <!-- controls -->
+  <div style="position:absolute; left:50%; bottom:34px; transform:translateX(-50%); display:flex; align-items:center; gap:18px; z-index:8;">
+    <button onClick="{{ onBounce }}" style="appearance:none; border:none; cursor:pointer; padding:14px 30px; border-radius:40px; background:#1f6f8b; color:#fff; font-size:16px; font-weight:600; letter-spacing:0.3px; box-shadow:0 6px 16px rgba(31,111,139,0.35);" style-hover="{{ btnHover }}">Bounce</button>
+    <span style="font-size:13px; color:#7a7064;">or click the board</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:980,&quot;height&quot;:600},&quot;flexIntensity&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:2.5,&quot;min&quot;:0.3,&quot;max&quot;:3,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;},&quot;springiness&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:1.6,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;},&quot;autoBounce&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showWater&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.boardRef = React.createRef();
+    this.waterRef = React.createRef();
+    this.segEls = [];
+    // per-segment share of the total bend: 0 for the anchored segments,
+    // then decreasing toward the tip so curvature is strongest at the fulcrum
+    this.weights = [0, 0, 0, 5, 4, 3, 2, 1];
+    this.wTotal = this.weights.reduce((a,b)=>a+b,0);
+    this.theta = 0;   // downward bend of cantilever, degrees
+    this.vel = 0;     // angular velocity, deg/s
+    this.last = 0;
+    this.lastBounce = 0;
+    this.btnHover = { background:'#235e76' };
+  }
+
+  bounce(strength){
+    const fi = this.props.flexIntensity ?? 2.5;
+    this.vel += 95 * fi * (strength ?? 1);
+    this.lastBounce = performance.now();
+    // water reaction
+    if (this.waterRef.current){
+      this.waterRef.current.animate(
+        [{transform:'translateY(0)'},{transform:'translateY(4px)'},{transform:'translateY(0)'}],
+        {duration:520, easing:'ease-out'}
+      );
+    }
+  }
+
+  componentDidMount(){
+    this.segEls = Array.from(this.boardRef.current.querySelectorAll('[data-seg]'))
+      .sort((a,b)=> (+a.dataset.seg) - (+b.dataset.seg));
+    this.last = performance.now();
+    const tick = (now) => {
+      let dt = (now - this.last) / 1000;
+      this.last = now;
+      if (dt > 0.05) dt = 0.05;
+
+      const spr = this.props.springiness ?? 1;
+      const k = 95 * spr * spr;   // stiffness
+      const c = 6.2;              // damping
+      const force = -k * this.theta - c * this.vel;
+      this.vel += force * dt;
+      this.theta += this.vel * dt;
+
+      // auto-bounce when settled
+      if ((this.props.autoBounce ?? true) &&
+          Math.abs(this.theta) < 0.4 && Math.abs(this.vel) < 6 &&
+          now - this.lastBounce > 2400){
+        this.bounce(0.8 + Math.random()*0.5);
+      }
+
+      // distribute the total bend across the chain; each segment rotates
+      // relative to its parent, so the rotations accumulate into a smooth curve
+      const t = this.theta;
+      for (let i=0;i<this.segEls.length;i++){
+        const d = t * (this.weights[i] / this.wTotal);
+        this.segEls[i].style.transform = d ? `rotate(${d}deg)` : '';
+      }
+      this._raf = requestAnimationFrame(tick);
+    };
+    this._raf = requestAnimationFrame(tick);
+
+    // click the board to bounce
+    this._onClick = () => this.bounce(1);
+    if (this.boardRef.current) this.boardRef.current.addEventListener('click', this._onClick);
+  }
+
+  componentWillUnmount(){
+    cancelAnimationFrame(this._raf);
+    if (this.boardRef.current) this.boardRef.current.removeEventListener('click', this._onClick);
+  }
+
+  renderVals(){
+    return {
+      boardRef: this.boardRef,
+      waterRef: this.waterRef,
+      btnHover: this.btnHover,
+      waterDisplay: (this.props.showWater ?? true) ? 'block' : 'none',
+      onBounce: () => this.bounce(1),
+    };
+  }
+}
+</script>
+</body>
+</html>

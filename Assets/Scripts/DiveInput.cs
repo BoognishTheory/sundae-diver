@@ -18,8 +18,8 @@ namespace SundaeDiver
         // Set by PrototypeUI each frame (reset on GUI Layout)
         public bool uiCW, uiCCW;
 
-        public bool HoldCW  => uiCW  || Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.X);
-        public bool HoldCCW => uiCCW || Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.Z);
+        public bool HoldCW  => uiCW  || Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.K);
+        public bool HoldCCW => uiCCW || Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.J);
 
         private const float LaunchSwipePx = 60f;     // min downward drag to count as a launch
         private const float ChargeDistancePx = 220f; // drag distance for a full "loaded board"
@@ -40,8 +40,8 @@ namespace SundaeDiver
 
             // keyboard horizontal (editor testing)
             KeyMoveDir = 0;
-            if (Input.GetKey(KeyCode.LeftArrow))  KeyMoveDir -= 1;
-            if (Input.GetKey(KeyCode.RightArrow)) KeyMoveDir += 1;
+            if (Input.GetKey(KeyCode.LeftArrow)  || Input.GetKey(KeyCode.A)) KeyMoveDir -= 1;
+            if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) KeyMoveDir += 1;
 
             // keyboard launch (immediate)
             if (state == GameState.Ready &&

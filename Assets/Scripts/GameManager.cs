@@ -20,6 +20,8 @@ namespace SundaeDiver
         public PrefabLibrary prefabs;
         [Tooltip("Optional. Handles Ali's splat-wipe + sundae reveal on landing.")]
         public SundaePresenter presenter;
+        [Tooltip("Optional. When assigned the banana rides the board tip during Ready.")]
+        public DivingBoard divingBoard;
 
         public GameState State { get; private set; } = GameState.Menu;
         public DiveInput Input { get; private set; }
@@ -74,18 +76,20 @@ namespace SundaeDiver
         {
             if (State != GameState.Ready) return;
             State = GameState.Diving;
-            // Diving-board spring: start with an UPWARD velocity so the banana pops off
-            // the board, reaches an apex, then arcs down into the dive.
+            // Seed _distance from the banana's current Y so there's no position pop
+            // when the board has bent it below the origin.
+            _distance  = -banana.transform.position.y;
             _fallSpeed = -config.launchSpringSpeed * Mathf.Max(0.1f, Current.speedMul);
         }
 
-        // Anticipation: while the player pulls down, dip + squash the banana so the board
-        // looks loaded. Released, Launch() springs it upward.
+        // Anticipation: while the player pulls down, dip the banana so it rides
+        // the board tip. With a DivingBoard assigned, Y comes from the board tip;
+        // otherwise fall back to the original fixed-dip formula.
         private void ApplyReadyCrouch(float charge)
         {
             var p = banana.transform.position;
             p.x = 0f;
-            p.y = -0.15f * charge;
+            p.y = divingBoard != null ? divingBoard.GetBananaY() : -0.15f * charge;
             banana.transform.position = p;
             banana.transform.localScale = new Vector3(1f + 0.08f * charge, 1f - 0.12f * charge, 1f);
         }

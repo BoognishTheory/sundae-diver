@@ -15,6 +15,8 @@ MonoBehaviour:
   fallStart: 6
   fallAccel: 1.2
   fallMax: 12
+  launchSpringSpeed: 20
+  launchGravity: 28
   moveSpeed: 55
   moveFriction: 8
   keyMoveAccel: 38
